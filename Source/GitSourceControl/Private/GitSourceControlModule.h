@@ -35,6 +35,28 @@ Written and contributed by Sebastien Rombauts (sebastien.rombauts@gmail.com)
 - Git LFS 2 File Locking is working with Git 2.10+ and Git LFS 2.0.0
 - Windows, Mac and Linux
 
+### TODO LFS 2.x File Locking
+
+Known issues:
+1. I have found **Git LFS 2** to be not totally reliable _(under Windows at least)_. An early tester found that **sometimes "read-only" flags are not in sync with "file lock"** which can totally mess with the Editor assumptions on those!
+  1. This was reported testing OUSTIDE UE, so WITHOUT the plugin!
+  2. The plugin would probably have to handle this, but this could be non-trivial (think medium-term goal).
+2. This pre-release have a known issue about **File Locked by others not correctly handled!**. This needs to be addressed ASAP!
+
+Use "TODO LFS" in the code to track things left to do/improve/refactor:
+1. IsUsingGitLfsLocking() should be cached in the Provider to avoid calling AccessSettings() too frequently
+   it can not change without re-initializing (at least re-connect) the Provider!
+2. Implement FGitSourceControlProvider::bWorkingOffline like the SubversionSourceControl plugin
+3. Trying to deactivate Git LFS 2 file locking afterward on the "Login to Source Control" (Connect/Configure) screen
+   is not working after Git LFS 2 has switched "read-only" flag on files (which needs the Checkout operation to be editable)!
+   - temporarily deactivating locks may be required if we want to be able to work while not connected (do we really need this ???)
+   - does Git LFS have a command to do this deactivation ?
+     - perhaps should we rely on detection of such flags to detect LFS 2 usage (ie the need to do a checkout)
+       - see SubversionSourceControl plugin that deals with such flags
+       - this would need a rework of the way the "bIsUsingFileLocking" si propagated, since this would no more be a configuration (or not only) but a file state
+     - else we should at least revert those read-only flags when going out of "Lock mode"
+4. Optimize usage of "git lfs locks", ie reduce the use of UdpateStatus() in Operations
+
 ### What *cannot* be done presently
 - Branch/Merge are not in the current Editor workflow
 - Fetch/Push are not in the current Editor workflow
